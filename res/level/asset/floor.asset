@@ -1,0 +1,4 @@
+define> name Floor
+define> renderer 1280|200
+define> texture res/texture/box.png
+define> static 1280|200

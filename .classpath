@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="D:/git/APIe/APIe-Engine/lib/jar/lwjgl.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/git/APIe/APIe-Engine/lib/doc/"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="APIe-Engine/lib/native"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/git/APIe/APIe-Engine/lib/jar/SKNet.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="D:/git/TimeAPI/TimeAPI/lib/native"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
