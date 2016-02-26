@@ -28,7 +28,18 @@ public class Collision {
 		
 		bodies = b;
 		
-		pe.addCollision(this);
+	}
+	
+	public float getDepth() {
+		return depth;
+	}
+	
+	public Vector2f getNormal() {
+		return normal;
+	}
+	
+	public void register() {
+		pe.addCollision(this);		
 	}
 	
 	/**

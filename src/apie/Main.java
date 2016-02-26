@@ -69,7 +69,7 @@ public class Main {
 				pe.addBody(e.getBody());
 				
 				Entity a = new Entity();
-				a.setRenderer(new QuadRenderer(100, 500, 100, 100, Texture.DEFAULT_TEXTURE));
+				a.setRenderer(new QuadRenderer(0, 500, 100, 100, Texture.DEFAULT_TEXTURE));
 				//a.transform = new Transform(new Vector2f(100.0f, 500.0f));
 				a.setBody(new Body(a.transform, 100, 100).setAbsolute(false));
 				em.addEntity("Ted", a);
@@ -86,7 +86,9 @@ public class Main {
 			
 			@Override
 			public void onKeyboard(long window, int key, int scancode, int action, int mods) {
-				
+				if (key == GLFW.GLFW_KEY_ESCAPE) {
+					game.stop();
+				}
 			}
 			
 			@Override
