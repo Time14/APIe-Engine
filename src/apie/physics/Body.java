@@ -355,6 +355,56 @@ public class Body {
 	}
 	
 	/**
+	 * Casts all the normals to find an axis that seperates them. If there is none, the objects are probably colliding.
+	 * @param pe The physics engine
+	 * @param body The other body in the collision
+	 * @param normalParent The body that has the normals that should be checked
+	 * @return A collision event or null if there is no collision
+	 */
+	
+	private Collision castNormals(PhysicsEngine pe, Body body, Body normalParent) {
+		
+		float depth = 0;
+		Vector2f normal = body.getPos();
+		Vector2f distance = (Vector2f) new Vector2f(body.getPos().getX() - this.getPos().getX(), body.getPos().getY() - this.getPos().getY());
+		
+		Debug.log("NEW BODY!");
+		
+		for(Vector2f n : normalParent.collider.getNormals()) {
+			float projection = distance.dot(n);
+
+			Vector2f a = this.collider.project(n, this.getDim().getX(), this.getDim().getY());
+			Vector2f b = body.collider.project(n, body.getDim().getX(), body.getDim().getY());
+			
+			float d = 0;
+			float s = 0;
+			if (projection < 0) {
+				d = Math.abs(a.getX()) + Math.abs(b.getY());
+				s = -1;
+			} else {
+				d = Math.abs(b.getX()) + Math.abs(a.getY());
+				s = 1;
+			}
+
+			
+			Debug.log(d, projection, (d - projection));
+			projection = Math.abs(projection);
+			
+			if (projection < d) {
+				if ((Math.abs(d - projection) < depth) || depth == 0) {
+					depth = Math.abs(d - projection);
+					normal = n;
+					normal.scale(-s);
+					//Debug.log(normal, depth);
+				}
+			} else {
+				return null;
+			}
+		}
+		return new Collision(pe, normal, depth, this, body);
+	}
+	
+	/**
 	 * 
 	 * Checks if two bodies are colliding, you should probably not call this. The physics engine will handle this perfectly well.
 	 * 
@@ -363,67 +413,13 @@ public class Body {
 	 */
 protected void _checkCollision(Body body, PhysicsEngine pe) {
 	
-	float depth = 0;
-	Vector2f normal = body.getPos();
-	Vector2f distance = (Vector2f) new Vector2f(body.getPos().getX() - this.getPos().getX(), body.getPos().getY() - this.getPos().getY());
+	Collision a = castNormals(pe, body, body);
+	Collision b = castNormals(pe, body, this);
 	
-	//Collision Check
-	//My normals
-	for(Vector2f n : this.collider.getNormals()) {
-		float projection = distance.dot(n);
-
-		Vector2f a = this.collider.project(n, this.getDim().getX(), this.getDim().getY());
-		Vector2f b = body.collider.project(n, body.getDim().getX(), body.getDim().getY());
-		
-		float d = 0;
-		float s = 0;
-		if (projection < 0) {
-			d = Math.abs(a.getX()) + Math.abs(b.getY());
-			s = -1;
-		} else {
-			d = Math.abs(b.getX()) + Math.abs(a.getY());
-			s = 1;
-		}
-
-		projection = Math.abs(projection);
-		
-		if (Math.abs(projection) < d) {
-			if ((d - projection < depth) || depth == 0) {
-				depth = (d - projection);
-				normal = n;
-				normal.scale(-s);			}
-		} else {
-			return;
-		}
-	}
+	if (a == null || b == null) return;
 	
-	for(Vector2f n : body.collider.getNormals()) {
-		float projection = distance.dot(n);
-
-		Vector2f a = this.collider.project(n, this.getDim().getX(), this.getDim().getY());
-		Vector2f b = body.collider.project(n, body.getDim().getX(), body.getDim().getY());
-		
-		float d = 0;
-		float s = 0;
-		if (projection < 0) {
-			d = Math.abs(a.getX()) + Math.abs(b.getY());
-			s = -1;
-		} else {
-			d = Math.abs(b.getX()) + Math.abs(a.getY());
-			s = 1;
-		}
-
-		projection = Math.abs(projection);
-		
-		if (Math.abs(projection) < d) {
-			if ((d - projection < depth) || depth == 0) {
-				depth = (d - projection);
-				normal = n;
-				normal.scale(-s);
-			}
-		} else {
-			return;
-		}
+	if (b.getDepth() < a.getDepth()) {
+		a = b;
 	}
 	
 	//Add in all my tags
@@ -432,8 +428,8 @@ protected void _checkCollision(Body body, PhysicsEngine pe) {
 	}
 	
 	//Add in the normal
-	this.addNormal(normal);
-	body.addNormal(normal);
+	this.addNormal(a.getNormal());
+	body.addNormal(b.getNormal());
 	
 	//Add in all the other bodies tags
 	for(String t : body.getTags()) {
@@ -443,51 +439,9 @@ protected void _checkCollision(Body body, PhysicsEngine pe) {
 	//Make a collision event if necessary 
 	if(trigger || body.isTrigger()) return;
 	
-	Debug.log(normal);
-	
-	new Collision(pe, new Vector2f(normal.getX(), normal.getY()), depth, this, body);
+	a.register();
 	return;
 }	
-	
-//	protected void _checkCollision(Body body, PhysicsEngine pe) {
-//		
-//		//Collision Check
-//		float overlapX = 0.5f * Math.abs(this.dim.getX() + body.dim.getX()) - Math.abs(this.transform.pos.getX() - body.transform.pos.getX());
-//		if(overlapX < 0) return;		
-//
-//		float overlapY = 0.5f * Math.abs(this.dim.getY() + body.dim.getY()) - Math.abs(this.transform.pos.getY() - body.transform.pos.getY());
-//		if(overlapY < 0) return;
-//		
-//		//Add in all my tags
-//		for(String t : myTags) {
-//			body.addCollidingTag(t);
-//		}
-//		
-//		//Add in all the other bodies tags
-//		for(String t : body.getTags()) {
-//			addCollidingTag(t);
-//		}
-//		
-//		//Make a collision event if necessary 
-//		if(trigger || body.isTrigger()) return;
-//		
-//		VectorXf distance = this.transform.pos.clone().sub(body.getPos());
-//		float depth = 0;
-//		
-//		if(Math.abs(distance.getN(0)) > Math.abs(distance.getN(1))) {
-//			distance.setN(1, 0);
-//			distance.scale(Math.abs(1/distance.getN(0)));
-//			depth = overlapX;
-//		}
-//		else {
-//			distance.setN(0, 0);
-//			distance.scale(Math.abs(1/distance.getN(1)));
-//			depth = overlapY;
-//		}
-//
-//		new Collision(pe, new Vector2f(distance.getN(0), distance.getN(1)), depth, this, body);
-//		return;
-//	}
 	
 	/**
 	 * 
